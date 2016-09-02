@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import GameKit
 import AudioToolbox
 
 class ViewController: UIViewController {
@@ -35,10 +34,6 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadGameStartSound()
-        // Start game
-        playGameStartSound()
-        displayQuestion()
     }
 
     override func didReceiveMemoryWarning() {
@@ -46,11 +41,12 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    func displayQuestion() {
-        indexOfSelectedQuestion = GKRandomSource.sharedRandom().nextIntWithUpperBound(trivia.count)
-        let questionDictionary = trivia[indexOfSelectedQuestion]
-        questionField.text = questionDictionary["Question"]
-        playAgainButton.hidden = true
+    func startRound() {
+        getQuestionsForRound()
+    }
+    
+    func displayQuestion(<#parameters#>) -> <#return type#> {
+        <#function body#>
     }
     
     func displayScore() {
