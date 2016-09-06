@@ -24,4 +24,3 @@ func getQuestionsForRound() {
     print(roundQuestions.count)
     
 }
-
