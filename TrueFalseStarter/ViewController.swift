@@ -107,7 +107,6 @@ class ViewController: UIViewController {
     
     @IBAction func checkAnswer(sender: UIButton) {
         // Increment the questions asked counter
-        print(questionsAsked)
         let selectedQuestionDict = roundQuestions[questionsAsked]
         let correctAnswer = selectedQuestionDict.answer
         
