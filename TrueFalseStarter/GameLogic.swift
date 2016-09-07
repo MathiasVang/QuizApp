@@ -8,6 +8,7 @@
 
 import Foundation
 
+// Randomly picks questions and makes sure they are not repeated
 let questionsPerRound = 10
 var roundQuestions: [QuestionModel] = []
 
@@ -20,7 +21,4 @@ func getQuestionsForRound() {
             roundQuestions.append(allQuestions[randomNumber])
         }
     }
-    
-    print(roundQuestions.count)
-    
 }

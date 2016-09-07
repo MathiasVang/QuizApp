@@ -11,13 +11,13 @@ import AudioToolbox
 
 class ViewController: UIViewController {
     
+    //Declaring variables to use out of scope
     var questionsAsked = 0
     var correctQuestions = 0
-   // var indexOfSelectedQuestion: Int = 0
-    var indexOfRandomQuestion: Int = 0
-    var questionsAskedArray: [Int] = []
+    var lightningActive = false
     
-    var gameSound: SystemSoundID = 0
+    let correctAnswerColor = UIColor(red: 85/255.0, green: 176/255.0, blue: 112/255.0, alpha: 1.0)
+    let defaultColor = UIColor(red: 12/255.0, green: 121/255.0, blue: 150/255.0, alpha: 1.0)
     
     @IBOutlet weak var questionField: UILabel!
     @IBOutlet weak var firstButton: UIButton!
@@ -26,16 +26,22 @@ class ViewController: UIViewController {
     @IBOutlet weak var fourthButton: UIButton!
     @IBOutlet weak var nextQuestion: UIButton!
     @IBOutlet weak var playAgainButton: UIButton!
+    @IBOutlet weak var lightningRoundBtn: UIButton!
+    @IBOutlet weak var normalRoundBtn: UIButton!
+    @IBOutlet weak var timerLabel: UILabel!
 
+    
+    //Loading all neccesary items when opening application
     override func viewDidLoad() {
         super.viewDidLoad()
         loadGameStartSound()
         playGameStartSound()
         loadCorrectAnswerSound()
         loadWrongAnswerSound()
-        loadOverFiveCorrectQuestionsSound()
-        loadUnderFiveCorrectQuestionSound()
-        startGame()
+        loadOverSevenCorrectQuestionsSound()
+        loadUnderSevenCorrectQuestionSound()
+        showMenu()
+        //startGame()
     }
 
     override func didReceiveMemoryWarning() {
@@ -43,13 +49,28 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    func startGame() {
-        getQuestionsForRound()
-        displayQuestion()
+    // Show the menu and choose gametype
+    @IBAction func showMenu() {
+        questionField.text = "Choose a gametype"
+        hideAllButtons()
+        normalRoundBtn.hidden = false
+        lightningRoundBtn.hidden = false
+        timerLabel.hidden = true
     }
     
-    // Add GameLogic to this function instead
+    // Starting the game. Getting questions from file: GameLogic and displaying them
+    @IBAction func startGame() {
+        lightningActive = false
+        getQuestionsForRound()
+        displayQuestion()
+        timerLabel.hidden = true
+    }
+    
+    // display questions from GameLogic
     func displayQuestion() {
+        
+        hideAllButtons()
+        
         firstButton.hidden = false
         secondButton.hidden = false
         thirdButton.hidden = false
@@ -57,22 +78,7 @@ class ViewController: UIViewController {
         
         let currentQuestion = roundQuestions[questionsAsked]
         
-        /*indexOfRandomQuestion = Int(arc4random_uniform(UInt32(allQuestions.count)))
-        var currentQuestion = allQuestions[indexOfRandomQuestion]
-        questionField.text = currentQuestion.question
-        questionsAskedArray.append(indexOfRandomQuestion)
-    
-        if questionsAskedArray.contains(indexOfRandomQuestion) {
-            indexOfRandomQuestion = Int(arc4random_uniform(UInt32(allQuestions.count)))
-            currentQuestion = allQuestions[indexOfRandomQuestion]
-            questionField.text = currentQuestion.question
-        }*/
-        
-        print(currentQuestion.question)
-        print(currentQuestion.option1)
-        print(currentQuestion.option4)
-        print(currentQuestion.answer)
-        
+        // Assigning options of questions to buttons
         questionField.text = currentQuestion.question
         firstButton.setTitle(currentQuestion.option1, forState: .Normal)
         secondButton.setTitle(currentQuestion.option2, forState: .Normal)
@@ -86,25 +92,17 @@ class ViewController: UIViewController {
         if currentQuestion.option4 == nil {
             fourthButton.hidden = true
         }
-        
-        playAgainButton.hidden = true
-        nextQuestion.hidden = true
     }
     
+    // Hiding everything but Play Again button and Text field
     func displayScore() {
         // Hide the answer buttons
-        firstButton.hidden = true
-        secondButton.hidden = true
-        thirdButton.hidden = true
-        fourthButton.hidden = true
-        nextQuestion.hidden = true
+        hideAllButtons()
         
         // Display play again button
         playAgainButton.hidden = false
         
         questionField.text = "Way to go!\nYou got \(correctQuestions) out of \(questionsPerRound) correct!"
-        
-        
     }
     
     @IBAction func checkAnswer(sender: UIButton) {
@@ -112,10 +110,32 @@ class ViewController: UIViewController {
         print(questionsAsked)
         let selectedQuestionDict = roundQuestions[questionsAsked]
         let correctAnswer = selectedQuestionDict.answer
+        
+        disableButtons()
+        
         nextQuestion.hidden = false
+        normalRoundBtn.hidden = true
+        lightningRoundBtn.hidden = true
         
         questionsAsked += 1
         
+        // Checks to see if lightning round is active, if it is - stop timer
+        if lightningActive {
+            timer.invalidate()
+        }
+        
+        // Adding green color to correct answer
+        if firstButton.titleLabel?.text == correctAnswer {
+            firstButton.backgroundColor = correctAnswerColor
+        } else if secondButton.titleLabel?.text == correctAnswer {
+            secondButton.backgroundColor = correctAnswerColor
+        } else if thirdButton.titleLabel?.text == correctAnswer {
+            thirdButton.backgroundColor = correctAnswerColor
+        } else {
+            fourthButton.backgroundColor = correctAnswerColor
+        }
+        
+        // Prints wrong or right answer text
         if sender.titleLabel!.text == correctAnswer {
             correctQuestions += 1
             questionField.text = "Boom Shakalaka! You are correct!"
@@ -128,112 +148,107 @@ class ViewController: UIViewController {
         }
     }
     
+    // Check to see if game is over. Then display score
     func checkRound() {
         if questionsAsked == questionsPerRound {
-            if correctQuestions >= 5 {
-                overFiveCorrectSoundWithDelay(seconds: 1.0)
+            if correctQuestions >= 7 {
+                overSevenCorrectSoundWithDelay(seconds: 1.0)
             } else {
-                underFiveCorrectSoundWithDelay(seconds: 1.0)
+                underSevenCorrectSoundWithDelay(seconds: 1.0)
             }
             // Game is over
             displayScore()
         }
     }
     
+    func hideAllButtons() {
+        firstButton.hidden = true
+        secondButton.hidden = true
+        thirdButton.hidden = true
+        fourthButton.hidden = true
+        normalRoundBtn.hidden = true
+        lightningRoundBtn.hidden = true
+        nextQuestion.hidden = true
+        playAgainButton.hidden = true
+    }
+    
+    // Puts buttons into original state
+    func resetButtons() {
+        firstButton.backgroundColor = defaultColor
+        secondButton.backgroundColor = defaultColor
+        thirdButton.backgroundColor = defaultColor
+        fourthButton.backgroundColor = defaultColor
+        
+        firstButton.enabled = true
+        secondButton.enabled = true
+        thirdButton.enabled = true
+        fourthButton.enabled = true
+    }
+    
+    func disableButtons() {
+        firstButton.enabled = false
+        secondButton.enabled = false
+        thirdButton.enabled = false
+        fourthButton.enabled = false
+    }
+    
     @IBAction func nextQuestionTapped(sender: AnyObject) {
+        
+        if lightningActive {
+            setupLightningRound()
+            subtractTime()
+        }
+        
         displayQuestion()
+        resetButtons()
     }
     
     @IBAction func playAgain() {
         questionsAsked = 0
         correctQuestions = 0
+        resetButtons()
+        showMenu()
+    }
+    
+    @IBAction func lightningRoundStart(sender: UIButton) {
+        
+        normalRoundBtn.hidden = true
+        lightningRoundBtn.hidden = true
+        
         startGame()
-    }
-    
-    
-    
-    // MARK: Helper Methods
-    
-    func overFiveCorrectSoundWithDelay(seconds seconds: Double) {
-        // Converts a delay in seconds to nanoseconds as signed 64 bit integer
-        let delay = Int64(NSEC_PER_SEC * UInt64(seconds))
-        // Calculates a time value to execute the method given current time and delay
-        let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, delay)
         
-        // Executes the nextRound method at the dispatch time on the main queue
-        dispatch_after(dispatchTime, dispatch_get_main_queue()) {
-            self.playOverFiveCorrectQuestionsSound()
-        }
-    }
-    
-    func underFiveCorrectSoundWithDelay(seconds seconds: Double) {
-        // Converts a delay in seconds to nanoseconds as signed 64 bit integer
-        let delay = Int64(NSEC_PER_SEC * UInt64(seconds))
-        // Calculates a time value to execute the method given current time and delay
-        let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, delay)
+        timerLabel.hidden = false
         
-        // Executes the nextRound method at the dispatch time on the main queue
-        dispatch_after(dispatchTime, dispatch_get_main_queue()) {
-            self.playUnderFiveCorrectQuestionsSound()
+        setupLightningRound()
+        subtractTime()
+        lightningActive = true
+    }
+    
+    // MARK: Helper Methods to lightningRoundStart
+    
+    var seconds = 0.0
+    var timer = NSTimer()
+    
+    func setupLightningRound() {
+        timerLabel.textColor = UIColor(red: 225/225, green: 225/225, blue: 225/225, alpha: 1.0)
+        seconds = 15.0
+        timer = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: #selector(ViewController.subtractTime), userInfo: nil, repeats: true)
+    }
+    
+    @objc func subtractTime() {
+        seconds -= 0.1
+        timerLabel.text = "Time left: \(String(format: "%.01f", seconds))"
+        
+        if seconds <= 0.0 {
+            playWrongAnswerSound()
+            timer.invalidate()
+            disableButtons()
+            nextQuestion.hidden = false
+            timerLabel.text = "Time left: 0.0"
+            questionsAsked += 1
+        } else if seconds < 5 {
+            timerLabel.textColor = UIColor(red: 239/255.0, green: 130/255.0, blue: 100/255.0, alpha: 1.0)
+            timerLabel.text = "HURRY! \n" + "Time left: \(String(format: "%01f", seconds))"
         }
-    }
-    
-    func loadGameStartSound() {
-        let pathToSoundFile = NSBundle.mainBundle().pathForResource("GameSound", ofType: "wav")
-        let soundURL = NSURL(fileURLWithPath: pathToSoundFile!)
-        AudioServicesCreateSystemSoundID(soundURL, &gameSound)
-    }
-    
-    func playGameStartSound() {
-        AudioServicesPlaySystemSound(gameSound)
-    }
-    
-    var correctSound: SystemSoundID = 0
-    
-    func loadCorrectAnswerSound() {
-        let pathToSoundFile = NSBundle.mainBundle().pathForResource("got_s1e4_hodor", ofType: "wav")
-        let soundURL = NSURL(fileURLWithPath: pathToSoundFile!)
-        AudioServicesCreateSystemSoundID(soundURL, &correctSound)
-    }
-    
-    func playCorrectAnswerSound() {
-        AudioServicesPlaySystemSound(correctSound)
-    }
-    
-    var wrongSound: SystemSoundID = 0
-    
-    func loadWrongAnswerSound() {
-        let pathToSoundFile = NSBundle.mainBundle().pathForResource("got_s1e2_false", ofType: "wav")
-        let soundURL = NSURL(fileURLWithPath: pathToSoundFile!)
-        AudioServicesCreateSystemSoundID(soundURL, &wrongSound)
-    }
-    
-    func playWrongAnswerSound() {
-        AudioServicesPlaySystemSound(wrongSound)
-    }
-    
-    var overFiveCorrectQuestionsSound: SystemSoundID = 0
-    
-    func loadOverFiveCorrectQuestionsSound() {
-        let pathToSoundFile = NSBundle.mainBundle().pathForResource("got_s2e1_power1", ofType: "wav")
-        let soundURL = NSURL(fileURLWithPath: pathToSoundFile!)
-        AudioServicesCreateSystemSoundID(soundURL, &overFiveCorrectQuestionsSound)
-    }
-    
-    func playOverFiveCorrectQuestionsSound() {
-        AudioServicesPlaySystemSound(overFiveCorrectQuestionsSound)
-    }
-    
-    var underFiveCorrectQuestionsSound: SystemSoundID = 0
-    
-    func loadUnderFiveCorrectQuestionSound() {
-        let pathToSoundFile = NSBundle.mainBundle().pathForResource("got_s1e4_yield_emphatically", ofType: "wav")
-        let soundURL = NSURL(fileURLWithPath: pathToSoundFile!)
-        AudioServicesCreateSystemSoundID(soundURL, &underFiveCorrectQuestionsSound)
-    }
-    
-    func playUnderFiveCorrectQuestionsSound() {
-        AudioServicesPlaySystemSound(underFiveCorrectQuestionsSound)
     }
 }
-
