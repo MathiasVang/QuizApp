@@ -8,12 +8,12 @@
 
 import Foundation
 
-let amountOfQuestions = 10
+let questionsPerRound = 10
 var roundQuestions: [QuestionModel] = []
 
 func getQuestionsForRound() {
     var randomNumberArr: [Int] = []
-    while roundQuestions.count < amountOfQuestions {
+    while roundQuestions.count < questionsPerRound {
         let randomNumber = Int(arc4random_uniform(UInt32(allQuestions.count)))
         if  !randomNumberArr.contains(randomNumber) {
             randomNumberArr.append(randomNumber)

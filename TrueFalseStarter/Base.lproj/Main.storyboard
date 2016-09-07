@@ -37,8 +37,8 @@
                                 <state key="normal" title="Option 3"/>
                                 <variation key="default">
                                     <mask key="constraints">
-                                        <exclude reference="aZU-1W-MUi"/>
                                         <exclude reference="5qb-Wz-y0V"/>
+                                        <exclude reference="aZU-1W-MUi"/>
                                     </mask>
                                 </variation>
                                 <connections>
@@ -116,8 +116,8 @@
                                 <state key="normal" title="Option 2"/>
                                 <variation key="default">
                                     <mask key="constraints">
-                                        <exclude reference="vdz-QW-F35"/>
                                         <exclude reference="4Sw-H2-ct0"/>
+                                        <exclude reference="vdz-QW-F35"/>
                                     </mask>
                                 </variation>
                                 <connections>
@@ -137,8 +137,8 @@
                                 <state key="normal" title="Option 1"/>
                                 <variation key="default">
                                     <mask key="constraints">
-                                        <exclude reference="YWZ-yD-2rZ"/>
                                         <exclude reference="Pg5-K7-Ca9"/>
+                                        <exclude reference="YWZ-yD-2rZ"/>
                                     </mask>
                                 </variation>
                                 <connections>
@@ -158,8 +158,8 @@
                                 <state key="normal" title="Option 4"/>
                                 <variation key="default">
                                     <mask key="constraints">
-                                        <exclude reference="Zof-QF-gyW"/>
                                         <exclude reference="Kd7-J1-Gip"/>
+                                        <exclude reference="Zof-QF-gyW"/>
                                     </mask>
                                 </variation>
                                 <connections>
